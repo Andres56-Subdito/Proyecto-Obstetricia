@@ -24,7 +24,30 @@ const Lesson = () => {
       description: 'El fisiobalón facilita el movimiento de la pelvis y ayuda en el descenso fetal.',
       evaluation: 'Realiza el test práctico sobre posturas ergonómicas.'
     },
-    // Este era el curso que estabas viendo por defecto
+
+    '2': {
+      title: 'REBOZO',
+      videoThumbnail: 'https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      author: 'Especialista en Rebozo',
+      description: 'Aprende a utilizar el rebozo como herramienta de apoyo durante el embarazo y el parto.',
+      evaluation: 'Completa el ejercicio práctico sobre técnicas de uso del rebozo.'
+    },
+
+    '3': {
+      title: 'Camilla de Parto Humano',
+      videoThumbnail: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+      author: 'Especialistas en Camillas de Parto',
+      description: 'Descubre las ventajas del uso de la camilla de parto humano durante el proceso de nacimiento.',
+      evaluation: 'Completa el formulario de evaluación sobre las características de la camilla.'
+    },
+
+
+    //siguiendo asi los demas cursos, tengo que agregar el id modificar la ruta de la foto y asi despues agregar la descripcion de cada curso
+    //pega para mas adelante, colocar el link para poder hacer el curso como sale en el instructivo que tengo
+
+
+
+    // Este era el curso viendo por defecto
     '4': {
       title: 'MUSICOTERAPIA',
       videoThumbnail: 'https://images.unsplash.com/photo-1519681393784-d120267933ba?ixlib=rb-4.0.3&auto=format&fit=crop&w=1200&q=80',

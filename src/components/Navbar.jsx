@@ -15,6 +15,7 @@ const Navbar = () => {
     navigate('/');
   };
 
+  //definimos los id de los cursos para el menú desplegable
   const menuItems = [
     { name: "Aromaterapia", id: "0" }, 
     { name: "Fisiobalón", id: "1" },

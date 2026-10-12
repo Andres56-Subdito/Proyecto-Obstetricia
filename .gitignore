@@ -33,3 +33,10 @@ __pycache__/
 backend/.env
 *.db
 backend/instance/
+
+# Credenciales de Firebase (NUNCA subir a GitHub)
+backend/firebase-key.json
+*firebase-adminsdk*.json
+.env
+.env.*
+!.env.example

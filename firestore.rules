@@ -1,0 +1,77 @@
+// =====================================================================
+// REGLAS DE SEGURIDAD DE FIRESTORE
+// =====================================================================
+// Aquí está la seguridad REAL de los roles (ocultar botones en React no basta,
+// porque cualquiera puede llamar a Firebase directamente).
+// Cómo aplicarlas: Consola de Firebase > Firestore Database > Reglas >
+// pega todo este archivo > Publicar.
+//
+//   TODO requiere haber iniciado sesión (no hay contenido público).
+//   alumno   -> lee cursos; guarda SU resultado de la Prueba (solo si no está bloqueada)
+//   profesor -> CRUD de cursos y bloques de inicio; ve resultados; autoriza repetir pruebas
+//   admin    -> todo lo anterior + orden de cursos + gestión de usuarios + edita textos de la portada
+// =====================================================================
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    // Lee el rol del usuario desde su documento users/{uid}
+    function role() { return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role; }
+    function isAdmin() { return signedIn() && role() == 'admin'; }
+    function isStaff() { return signedIn() && (role() == 'profesor' || role() == 'admin'); }
+
+    // Perfiles. NO hay registro público: solo un admin crea perfiles (y por tanto da acceso).
+    // Cada persona puede leer el suyo; nadie puede cambiarse el rol a sí mismo.
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || isAdmin());
+      allow create, delete: if isAdmin();
+      allow update: if isAdmin()
+                    || (request.auth.uid == uid && request.resource.data.role == resource.data.role);
+    }
+
+    // Cursos: lectura solo con sesión. Profesor y admin escriben, pero SOLO el admin puede cambiar `order`.
+    match /courses/{courseId} {
+      allow read: if signedIn();
+      allow create, delete: if isStaff();
+      allow update: if isAdmin()
+                    || (isStaff() && request.resource.data.order == resource.data.order);
+    }
+
+    // Bloques de contenido general de la página de inicio.
+    match /siteBlocks/{blockId} {
+      allow read: if signedIn();
+      allow write: if isStaff();
+    }
+
+    // Textos editables de la portada (CMS): solo el administrador modifica.
+    match /siteContent/{docId} {
+      allow read: if signedIn();
+      allow write: if isAdmin();
+    }
+
+    // Resultados de la PRUEBA final.
+    //  - El alumno crea su resultado la primera vez.
+    //  - Para volver a rendir (update), el profesor debe haber puesto retakeAllowed = true;
+    //    al enviar, el alumno SIEMPRE lo deja en false (se bloquea de nuevo).
+    //  - El profesor/admin solo puede cambiar el campo `retakeAllowed`.
+    match /results/{resultId} {
+      allow read: if signedIn() && (resource.data.uid == request.auth.uid || isStaff());
+
+      allow create: if signedIn()
+                    && request.resource.data.uid == request.auth.uid
+                    && resultId == request.auth.uid + '_' + request.resource.data.courseId
+                    && request.resource.data.retakeAllowed == false;
+
+      allow update: if (signedIn()
+                        && resource.data.uid == request.auth.uid
+                        && resource.data.retakeAllowed == true
+                        && request.resource.data.uid == request.auth.uid
+                        && request.resource.data.retakeAllowed == false)
+                    || (isStaff()
+                        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retakeAllowed']));
+
+      allow delete: if isAdmin();
+    }
+  }
+}

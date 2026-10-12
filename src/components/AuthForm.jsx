@@ -1,55 +1,39 @@
-import React, { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { AuthContext } from '../context/AuthContext';
+import React, { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
 
-const AuthForm = ({ type = 'login' }) => {
+// Traduce los códigos de error de Firebase a mensajes en español.
+// Para cambiar un mensaje, edita el texto de la derecha.
+const AUTH_ERRORS = {
+  'auth/invalid-credential': 'Correo o contraseña incorrectos',
+  'auth/invalid-email': 'El correo no es válido',
+  'auth/user-not-found': 'Correo o contraseña incorrectos',
+  'auth/wrong-password': 'Correo o contraseña incorrectos',
+  'auth/user-disabled': 'Esta cuenta está deshabilitada',
+  'auth/too-many-requests': 'Demasiados intentos. Espera unos minutos e inténtalo de nuevo',
+  'auth/network-request-failed': 'Sin conexión con Firebase. Revisa tu internet',
+  'app/no-profile': 'Tu cuenta no tiene acceso a la plataforma. Contacta al administrador',
+  'permission-denied': 'Tu cuenta no tiene acceso a la plataforma. Contacta al administrador',
+};
+
+// Formulario de INICIO DE SESIÓN (no hay registro: las cuentas las crea el administrador).
+// Al iniciar sesión correctamente, App.jsx detecta el usuario y lo redirige según su rol.
+const AuthForm = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  
-  const { login } = useContext(AuthContext);
-  const navigate = useNavigate();
 
-  const isLogin = type === 'login';
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError(null);
     setIsLoading(true);
 
-    const url = isLogin ? 'http://localhost:5000/api/login' : 'http://localhost:5000/api/register';
-    const bodyData = isLogin ? { email, password } : { name, email, password };
-
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyData)
-      });
-
-      const data = await response.json();
-
-      if (response.ok) {
-        if (isLogin) {
-          // Guardar token y datos en contexto
-          login(data.token, data.user);
-          // Redirigir según rol
-          if (data.user.role === 'admin') navigate('/admin');
-          else navigate('/dashboard');
-        } else {
-          // Si es registro, redirigimos a login
-          navigate('/login');
-          alert('Registro exitoso. Ahora puedes iniciar sesión.');
-        }
-      } else {
-        // Mostrar mensaje del backend
-        setError(data.message || 'Ocurrió un error');
-      }
+      await login(email, password);
     } catch (err) {
-      setError('No se pudo conectar al servidor. Revisa si el backend Flask está corriendo en el puerto 5000.');
-    } finally {
+      setError(AUTH_ERRORS[err.code] || 'Ocurrió un error. Inténtalo de nuevo');
       setIsLoading(false);
     }
   };
@@ -60,12 +44,8 @@ const AuthForm = ({ type = 'login' }) => {
         <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-primary-light text-white font-bold text-xl mb-4">
           SN
         </div>
-        <h2 className="text-2xl font-bold text-gray-800">
-          {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
-        </h2>
-        <p className="text-gray-500 text-sm mt-2">
-          {isLogin ? 'Ingresa a tu plataforma educativa' : 'Únete a Sentir Nacer hoy mismo'}
-        </p>
+        <h2 className="text-2xl font-bold text-gray-800">Iniciar Sesión</h2>
+        <p className="text-gray-500 text-sm mt-2">Ingresa a tu plataforma educativa</p>
       </div>
 
       {error && (
@@ -75,25 +55,12 @@ const AuthForm = ({ type = 'login' }) => {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-4">
-        {!isLogin && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Nombre Completo</label>
-            <input 
-              type="text" 
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
-              placeholder="Ej. María Pérez"
-            />
-          </div>
-        )}
-        
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Correo Electrónico</label>
-          <input 
-            type="email" 
+          <input
+            type="email"
             required
+            autoComplete="username"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
@@ -103,9 +70,10 @@ const AuthForm = ({ type = 'login' }) => {
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Contraseña</label>
-          <input 
-            type="password" 
+          <input
+            type="password"
             required
+            autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-primary focus:border-primary outline-none transition-colors"
@@ -113,12 +81,12 @@ const AuthForm = ({ type = 'login' }) => {
           />
         </div>
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={isLoading}
           className="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-md transition-colors shadow-sm mt-2 disabled:opacity-50"
         >
-          {isLoading ? 'Cargando...' : (isLogin ? 'Ingresar' : 'Registrarse')}
+          {isLoading ? 'Cargando...' : 'Ingresar'}
         </button>
       </form>
     </div>

@@ -1,40 +1,47 @@
 import React from 'react';
+import { EditableText, MediaEditButton, useSiteText } from './Editable';
+
+// Imagen de fondo original. El administrador puede cambiarla desde el Modo edición.
+const DEFAULT_HERO_BG =
+  'https://images.unsplash.com/photo-1555252834-453006d15a51?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80';
 
 const HeroSection = () => {
+  const heroBg = useSiteText('hero_bg', DEFAULT_HERO_BG);
+
   return (
-    // TAMAÑO DEL HERO: "h-[80vh]" en móvil y "md:h-[90vh]" en pc controlan el alto. 
+    // TAMAÑO DEL HERO: "h-[80vh]" en móvil y "md:h-[90vh]" en pc controlan el alto.
     // Si quieres que ocupe toda la pantalla, pon "h-screen".
     <div className="relative w-full h-[80vh] md:h-[90vh] bg-gray-900 overflow-hidden flex items-center">
-      
+
       {/* Background Image */}
-      <div 
+      <div
         // CAMBIAR EFECTO DE LA IMAGEN: "opacity-60" controla qué tan oscura se ve la imagen (0 a 100).
         className="absolute inset-0 bg-cover bg-center mix-blend-overlay opacity-60"
-        
-        // CAMBIAR IMAGEN DE FONDO: 
-        // Cambia la URL por el enlace de la imagen del bebé.
-        // Si pones la imagen en la carpeta "public", puedes usar: "url('/bebe.jpg')"
-        style={{ backgroundImage: "url('https://images.unsplash.com/photo-1555252834-453006d15a51?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80')" }}
+        // La URL de la imagen sale de Firestore (CMS) o, si no se ha editado, de DEFAULT_HERO_BG.
+        style={{ backgroundImage: `url('${heroBg}')` }}
       ></div>
-      
+      <MediaEditButton id="hero_bg" def={DEFAULT_HERO_BG} label="Cambiar fondo" />
+
       {/* Content overlay */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center md:text-left">
         {/* POSICIÓN DEL TEXTO: "mt-10 md:mt-20" controla el margen superior (para bajar el texto). */}
         <div className="max-w-2xl mt-10 md:mt-20">
-          
-          {/* CAMBIAR TEXTO PRINCIPAL: Modifica el contenido que está entre <h1> y </h1> */}
-          {/* "text-4xl" a "text-6xl" controlan el tamaño en distintos dispositivos. */}
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white tracking-wide leading-[1.1] drop-shadow-md">
-            Sentir Nacer: Herramienta<br />
-            Sensorial para Humanizar el<br />
-            Parto
-          </h1>
-          
+
+          {/* TÍTULO PRINCIPAL: editable desde el Modo edición (el texto original está en `def`).
+              "text-4xl" a "text-6xl" controlan el tamaño en distintos dispositivos. */}
+          <EditableText
+            as="h1"
+            id="hero_title"
+            multiline
+            def={'Sentir Nacer: Herramienta\nSensorial para Humanizar el\nParto'}
+            className="text-4xl md:text-5xl lg:text-6xl font-display font-bold text-white tracking-wide leading-[1.1] drop-shadow-md"
+          />
+
         </div>
       </div>
-      
+
       {/* Scroll indicator at the bottom (La flechita que rebota hacia abajo) */}
-      <button 
+      <button
         onClick={() => {
           const el = document.getElementById('que-es-sentir-nacer');
           if (el) el.scrollIntoView({ behavior: 'smooth' });

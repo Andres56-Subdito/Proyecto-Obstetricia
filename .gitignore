@@ -40,3 +40,12 @@ backend/firebase-key.json
 .env
 .env.*
 !.env.example
+
+# Backend Django (EVA2)
+backend/db.sqlite3
+
+# Backend Flask anterior archivado localmente (contiene .env y claves privadas)
+_flask_archivado/
+
+# Copia local del backend completo (auth, permisos, filtros, paginación...). No se entrega en la pre-entrega.
+_backend_completo_EVA2/

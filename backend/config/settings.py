@@ -38,8 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework',  # Django REST Framework
-    'plataforma',      # nuestra app
+    'rest_framework',            # Django REST Framework
+    'rest_framework.authtoken',  # autenticación por token (tabla de tokens)
+    'django_filters',            # filtros por campo en los listados 
+    'plataforma',                # nuestra app
 ]
 
 MIDDLEWARE = [
@@ -123,3 +125,43 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+# ---------------------------------------------------------------------------
+# Django REST Framework: autenticación, permisos, paginación y filtros
+# ---------------------------------------------------------------------------
+REST_FRAMEWORK = {
+    # AUTENTICACIÓN (quién eres): por token (cabecera "Authorization: Token <clave>") o por sesión.
+    # La sesión es la que usa la interfaz navegable (enlace «Log in» arriba a la derecha).
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ],
+    # PERMISOS (qué puedes hacer): por defecto TODA la API exige iniciar sesión y tener un rol
+    # (igual que el Frontend). Cada ViewSet define reglas más estrictas por rol: ver plataforma/permisos.py
+    'DEFAULT_PERMISSION_CLASSES': ['plataforma.permisos.UsuarioConRol'],
+    # PAGINACIÓN: todos los listados vienen paginados (ver config/paginacion.py).
+    'DEFAULT_PAGINATION_CLASS': 'config.paginacion.PaginacionEstandar',
+    # FILTROS Y BÚSQUEDA: disponibles en los listados.
+    #   ?campo=valor    -> filtro exacto    (DjangoFilterBackend)
+    #   ?search=texto   -> búsqueda de texto (SearchFilter)
+    #   ?ordering=campo -> ordenamiento      (OrderingFilter)
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'rest_framework.filters.OrderingFilter',
+    ],
+}
+
+# ---------------------------------------------------------------------------
+# Seguridad del inicio de sesión: LÍMITE DE INTENTOS FALLIDOS (anti fuerza bruta)
+# La lógica está en plataforma/seguridad.py. Protege TODAS las formas de iniciar sesión:
+# POST /api/login/, el «Log in» de la interfaz navegable y el panel /admin/.
+# ---------------------------------------------------------------------------
+AUTHENTICATION_BACKENDS = ['plataforma.seguridad.BackendConLimiteDeIntentos']
+LOGIN_MAX_INTENTOS = 5          # intentos fallidos permitidos (por usuario y por IP)
+LOGIN_BLOQUEO_SEGUNDOS = 300    # tiempo de bloqueo al llegar al máximo: 5 minutos
+
+# Adónde lleva el «Log in» / «Log out» de la interfaz navegable de DRF.
+LOGIN_REDIRECT_URL = '/api/'
+LOGOUT_REDIRECT_URL = '/api/'

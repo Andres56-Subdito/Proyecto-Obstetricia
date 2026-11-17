@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='/api/', permanent=False)),  # la raíz lleva a la API
     path('admin/', admin.site.urls),
     path('api/', include('plataforma.urls')),  # todas las rutas de la API empiezan con /api/
+    path('api-auth/', include('rest_framework.urls')),  # Log in / Log out de la interfaz navegable (por sesión)
 ]

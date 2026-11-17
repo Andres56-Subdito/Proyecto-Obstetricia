@@ -5,8 +5,6 @@ from .serializers import (
     BloqueContenidoSerializer, CursoSerializer, OpcionSerializer, PreguntaSerializer, ResultadoSerializer,
 )
 
-# Cada ModelViewSet entrega el CRUD completo de un modelo:
-# listar y crear (GET, POST) y ver, actualizar y eliminar (GET, PUT/PATCH, DELETE).
 
 
 class CursoViewSet(viewsets.ModelViewSet):

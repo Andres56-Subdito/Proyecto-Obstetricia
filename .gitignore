@@ -49,3 +49,9 @@ _flask_archivado/
 
 # Copia local del backend completo (auth, permisos, filtros, paginación...). No se entrega en la pre-entrega.
 _backend_completo_EVA2/
+
+# Guías de estudio locales (no se suben al repositorio)
+docs/
+
+# Pruebas automáticas locales: no son necesarias para que funcione el programa
+backend/plataforma/tests/

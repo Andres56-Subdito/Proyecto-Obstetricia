@@ -5,7 +5,6 @@ from .models import Curso, Opcion, Pregunta, Resultado
 
 
 class CursoCrudTests(APITestCase):
-    """Prueba el CRUD completo de un modelo (Curso) a través de la API."""
 
     def test_crud_de_cursos(self):
         # Crear (POST)
@@ -23,9 +22,7 @@ class CursoCrudTests(APITestCase):
         self.assertEqual(self.client.delete(f'/api/cursos/{pk}/').status_code, 204)
         self.assertEqual(Curso.objects.count(), 0)
 
-
 class RelacionesTests(APITestCase):
-    """Prueba que las relaciones entre modelos se reflejan en la API."""
 
     def setUp(self):
         self.curso = Curso.objects.create(titulo='Fisiobalón')

@@ -1,19 +1,6 @@
 from django.contrib.auth.models import User
 from django.db import models
 
-# Modelos de Sentir Nacer. Salen de las pantallas del Frontend:
-#   Curso           -> tarjetas de cursos (Inicio), ficha del curso y Panel > Cursos
-#   BloqueContenido -> apartados "Teórico" y "Práctico" de cada curso
-#   Pregunta        -> preguntas del test práctico y de la Prueba final
-#   Opcion          -> alternativas de cada pregunta
-#   Resultado       -> nota de la Prueba final de un alumno
-#
-# Relaciones (ForeignKey = "uno a muchos"):
-#   Curso 1 --- * BloqueContenido
-#   Curso 1 --- * Pregunta 1 --- * Opcion
-#   User  1 --- * Resultado * --- 1 Curso
-
-
 class Curso(models.Model):
     titulo = models.CharField(max_length=200)
     url_imagen = models.URLField(blank=True)
@@ -89,11 +76,11 @@ class Resultado(models.Model):
     total = models.IntegerField(default=0)
     porcentaje = models.IntegerField(default=0)
     intentos = models.IntegerField(default=1)
-    repeticion_permitida = models.BooleanField(default=False)  # el profesor la activa para permitir repetir la Prueba
+    repeticion_permitida = models.BooleanField(default=False)  
     fecha_envio = models.DateTimeField(auto_now=True)
 
     class Meta:
-        unique_together = ['alumno', 'curso']  # un resultado por alumno y curso
+        unique_together = ['alumno', 'curso']  
         verbose_name = 'resultado'
         verbose_name_plural = 'resultados'
 
